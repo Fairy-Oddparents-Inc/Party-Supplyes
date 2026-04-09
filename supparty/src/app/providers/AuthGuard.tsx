@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
 import { supabase } from '@/lib/supabase';
+import Navbar from '@/components/Navbar';
 
 export default function AuthGuard({ children }: { children: React.ReactNode }) {
   const router = useRouter();
@@ -30,9 +31,8 @@ export default function AuthGuard({ children }: { children: React.ReactNode }) {
         // Si ya está logueado e intenta ir al login, lo mandamos al home
         if (pathname === '/login') {
           router.push('/features/homePage');
-        } else {
-          setAuthorized(true);
         }
+        setAuthorized(true); // Set authorized once if session exists
       }
     };
 
@@ -48,5 +48,12 @@ export default function AuthGuard({ children }: { children: React.ReactNode }) {
     );
   }
 
-  return <>{children}</>;
+  return (
+    <>
+      {pathname !== '/login' && <Navbar />}
+      <main className={pathname !== '/login' ? "pt-40" : ""}>
+        {children}
+      </main>
+    </>
+  );
 }
