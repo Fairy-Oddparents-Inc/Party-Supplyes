@@ -24,7 +24,9 @@ export default function LoginPage() {
 
     if (error) {
       setError(error.message);
+      localStorage.setItem('isLoggedIn', 'false');
     } else {
+      localStorage.setItem('isLoggedIn', 'true');
       router.push("/"); // redirige después del login
     }
 
