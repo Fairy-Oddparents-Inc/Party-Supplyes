@@ -10,37 +10,35 @@ export default function AuthGuard({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const [authorized, setAuthorized] = useState(false);
 
+  const publicRoutes = ['/', '/features/homePage']; 
+
   useEffect(() => {
     const checkUser = async () => {
       const { data: { session } } = await supabase.auth.getSession();
-      const isLoggedInFlag = localStorage.getItem('isLoggedIn');
+      
+      const isPublic = publicRoutes.includes(pathname);
 
-      // Si no hay sesión en Supabase o la bandera es explícitamente 'false'
-      if (!session || isLoggedInFlag === 'false') {
-        localStorage.setItem('isLoggedIn', 'false');
-        
-        if (pathname !== '/login') {
-          router.push('/login');
-        } else {
-          setAuthorized(true);
-        }
-      } else {
-        localStorage.setItem('isLoggedIn', 'true');
+      if (isPublic) {
         setAuthorized(true);
-        
-        // Si ya está logueado e intenta ir al login, lo mandamos al home
-        if (pathname === '/login') {
-          router.push('/features/homePage');
-        }
-        setAuthorized(true); // Set authorized once if session exists
+        return;
       }
+
+      if (!session) {
+        router.push('/login');
+        return;
+      }
+
+      if (pathname === '/login') {
+        router.push('/'); 
+      }
+
+      setAuthorized(true);
     };
 
     checkUser();
   }, [router, pathname]);
 
-  // Bloqueamos el renderizado hasta confirmar que el usuario tiene permitido ver la ruta actual
-  if (!authorized && pathname !== '/login') {
+  if (!authorized && !publicRoutes.includes(pathname)) {
     return (
       <div className="flex items-center justify-center min-h-screen">
         <p>Verificando sesión...</p>
@@ -51,6 +49,7 @@ export default function AuthGuard({ children }: { children: React.ReactNode }) {
   return (
     <>
       {pathname !== '/login' && <Navbar />}
+      
       <main className={pathname !== '/login' ? "pt-40" : ""}>
         {children}
       </main>
