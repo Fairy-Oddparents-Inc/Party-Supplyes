@@ -54,12 +54,14 @@ export default function LoginDialog() {
   };
 
   const handleSocialLogin = async (provider: 'google' | 'facebook') => {
-    const { error } = await supabase.auth.signInWithOAuth({
-      provider,
-      options: { redirectTo: `${window.location.origin}/auth/callback` },
-    });
-    if (error) setError(error.message);
-  };
+  const { error } = await supabase.auth.signInWithOAuth({
+    provider,
+    options: { 
+      redirectTo: `${window.location.origin}/features/homePage` 
+    },
+  });
+  if (error) setError(error.message);
+};
 
   const handleOpenChange = (open: boolean) => {
     if (!open) { setIsSignUp(false); setError(""); }
