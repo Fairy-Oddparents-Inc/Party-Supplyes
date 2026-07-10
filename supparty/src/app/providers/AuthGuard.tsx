@@ -8,50 +8,56 @@ import Navbar from '@/components/Navbar';
 export default function AuthGuard({ children }: { children: React.ReactNode }) {
   const router = useRouter();
   const pathname = usePathname();
-  const [authorized, setAuthorized] = useState(false);
-
-  const publicRoutes = ['/', '/features/homePage']; 
+  const [session, setSession] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const checkUser = async () => {
-      const { data: { session } } = await supabase.auth.getSession();
-      
-      const isPublic = publicRoutes.includes(pathname);
+    // 1. Obtener sesión inicial
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setSession(session);
+      handleNavigation(session);
+      setLoading(false);
+    });
 
-      if (isPublic) {
-        setAuthorized(true);
-        return;
-      }
+    // 2. Escuchar cambios de sesión en tiempo real
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, currentSession) => {
+      setSession(currentSession);
+      handleNavigation(currentSession);
+      setLoading(false);
+    });
 
-      if (!session) {
-        router.push('/login');
-        return;
-      }
+    return () => subscription.unsubscribe();
+  }, [pathname]);
 
-      if (pathname === '/login') {
-        router.push('/'); 
-      }
+  const handleNavigation = (currentSession: any) => {
+    // Si está logueado e intenta ir a la raíz o al login, lo mandamos al dashboard
+    if (currentSession && (pathname === '/' || pathname === '/login')) {
+      router.push('/dashboard');
+    }
+    // Si NO está logueado e intenta ir a una ruta privada (ej: /dashboard)
+    if (!currentSession && pathname.startsWith('/dashboard')) {
+      router.push('/');
+    }
+  };
 
-      setAuthorized(true);
-    };
-
-    checkUser();
-  }, [router, pathname]);
-
-  if (!authorized && !publicRoutes.includes(pathname)) {
+  if (loading) {
     return (
-      <div className="flex items-center justify-center min-h-screen">
-        <p>Verificando sesión...</p>
+      <div className="flex items-center justify-center min-h-screen bg-slate-50">
+        <p className="text-[#4B1B7D] font-medium animate-pulse">Verificando sesión...</p>
       </div>
     );
   }
 
+  // Evaluamos si es el Dashboard privado para no renderizar la Navbar pública de arriba
+  const isDashboard = pathname.startsWith('/dashboard');
+
   return (
     <>
+      {/* Solo muestra la Navbar pública si NO es el login y NO es el dashboard de usuario */}
       {pathname !== '/login' && <Navbar />}
       
-      <main className={pathname !== '/login' ? "pt-40" : ""}>
-        {children}
+      <main>
+          {children}
       </main>
     </>
   );

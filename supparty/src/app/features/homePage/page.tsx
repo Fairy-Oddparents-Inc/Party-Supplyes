@@ -9,9 +9,8 @@ import { Search, MapPin, Calendar, Bot } from "lucide-react";
 export default function LandingPage() {
   return (
     <main className="min-h-screen bg-gray-50">
-      <Navbar />
       
-      <div className="pt-32 pb-16">
+      <div className="pb-16">
         
         <section className="bg-gradient-to-r from-cyan-400 to-blue-500 py-16 px-6 text-center">
           <h1 className="text-4xl md:text-5xl font-bold text-white mb-8">Verano Party</h1>

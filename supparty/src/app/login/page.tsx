@@ -48,20 +48,22 @@ export default function LoginDialog() {
     } else {
       const { error } = await supabase.auth.signInWithPassword({ email, password });
       if (error) setError(error.message);
-      else router.refresh();
+      else {
+        router.push('/dashboard'); 
+      }
     }
     setLoading(false);
   };
 
   const handleSocialLogin = async (provider: 'google' | 'facebook') => {
-  const { error } = await supabase.auth.signInWithOAuth({
-    provider,
-    options: { 
-      redirectTo: `${window.location.origin}/features/homePage` 
-    },
-  });
-  if (error) setError(error.message);
-};
+    const { error } = await supabase.auth.signInWithOAuth({
+      provider,
+      options: { 
+        redirectTo: `${window.location.origin}/dashboard` 
+      },
+    });
+    if (error) setError(error.message);
+  };
 
   const handleOpenChange = (open: boolean) => {
     if (!open) { setIsSignUp(false); setError(""); }
@@ -70,7 +72,13 @@ export default function LoginDialog() {
   return (
     <Dialog onOpenChange={handleOpenChange}>
       <DialogTrigger asChild>
-        <Button className="bg-[#E91E63] rounded-md px-6">Iniciar Sesión</Button>
+        <Button 
+          variant="ghost" 
+          size="sm" 
+          className="h-auto p-0 text-[13px] hover:bg-transparent text-white hover:text-pink-300 flex items-center gap-1.5 font-medium transition-colors cursor-pointer"
+        >
+          <span>Iniciar Sesión</span>
+        </Button>
       </DialogTrigger>
       
       <DialogContent className="bg-[#4B1B7D] text-white sm:max-w-md rounded-2xl" onInteractOutside={(e) => e.preventDefault()}>
