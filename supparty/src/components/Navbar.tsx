@@ -3,6 +3,7 @@
 
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { 
   Grid, HelpCircleIcon, Bell, Heart, ShoppingCart, 
   User, Percent, Armchair, Gamepad2, Landmark, Sparkles, Search 
@@ -37,14 +38,17 @@ export default function Navbar() {
   };
 
   return (
-    // 🛠️ Mantenemos px-8 para alineación horizontal y agregamos un padding vertical simétrico (py-3)
     <div className="relative w-full bg-[#4B1B7D] text-white px-8 py-3 z-50 select-none flex flex-col justify-between min-h-[110px]">
       
-      {/* ================= LOGO: CENTRADO ABSOLUTO EN TODO EL NAVBAR ================= */}
-      {/* 🛠️ Explicación: Con 'absolute top-1/2 -translate-y-1/2' ignora por completo las filas superiores e inferiores, quedando exactamente a la mitad vertical de toda la barra morada. */}
       <div className="absolute left-8 top-1/2 -translate-y-1/2 z-10">
         <Link href="/" className="text-3xl font-black tracking-tight flex items-center gap-2">
-          <span className="text-3xl">🎈</span>Supparty
+          <Image 
+            src="/assets/suppartyLogo.svg" 
+            alt="Supparty Logo" 
+            width={250} 
+            height={80} 
+            className="object-contain"
+    />
         </Link>
       </div>
 
