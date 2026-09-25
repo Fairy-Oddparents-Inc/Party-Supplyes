@@ -3,18 +3,18 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabase";
-import { 
-  Dialog, 
-  DialogContent, 
-  DialogDescription, 
-  DialogHeader, 
-  DialogTitle, 
-  DialogTrigger 
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
-import { Facebook } from "lucide-react"; 
+import { Facebook } from "lucide-react";
 
 const GoogleIcon = () => (
   <svg width="20" height="20" viewBox="0 0 48 48">
@@ -24,7 +24,7 @@ const GoogleIcon = () => (
     <path fill="#1976D2" d="M43.611 20.083H42V20H24v8h11.303a12.04 12.04 0 0 1-4.087 5.571l.003-.002l6.19 5.238C36.971 39.205 44 34 44 24c0-1.332-.142-2.631-.389-3.917z" />
   </svg>
 );
-
+// Comment to check PR allowed
 export default function LoginDialog() {
   const router = useRouter();
   const [email, setEmail] = useState("");
@@ -40,7 +40,7 @@ export default function LoginDialog() {
     setError("");
 
     if (isSignUp) {
-      const { error } = await supabase.auth.signUp({ 
+      const { error } = await supabase.auth.signUp({
         email, password, options: { data: { full_name: nombre } }
       });
       if (error) setError(error.message);
@@ -49,7 +49,7 @@ export default function LoginDialog() {
       const { error } = await supabase.auth.signInWithPassword({ email, password });
       if (error) setError(error.message);
       else {
-        router.push('/dashboard'); 
+        router.push('/dashboard');
       }
     }
     setLoading(false);
@@ -58,8 +58,8 @@ export default function LoginDialog() {
   const handleSocialLogin = async (provider: 'google' | 'facebook') => {
     const { error } = await supabase.auth.signInWithOAuth({
       provider,
-      options: { 
-        redirectTo: `${window.location.origin}/dashboard` 
+      options: {
+        redirectTo: `${window.location.origin}/dashboard`
       },
     });
     if (error) setError(error.message);
@@ -72,15 +72,15 @@ export default function LoginDialog() {
   return (
     <Dialog onOpenChange={handleOpenChange}>
       <DialogTrigger asChild>
-        <Button 
-          variant="ghost" 
-          size="sm" 
+        <Button
+          variant="ghost"
+          size="sm"
           className="h-auto p-0 text-[13px] hover:bg-transparent text-white hover:text-pink-300 flex items-center gap-1.5 font-medium transition-colors cursor-pointer"
         >
           <span>Iniciar Sesión</span>
         </Button>
       </DialogTrigger>
-      
+
       <DialogContent className="bg-[#4B1B7D] text-white sm:max-w-md rounded-2xl" onInteractOutside={(e) => e.preventDefault()}>
         <DialogHeader>
           <DialogTitle className="text-center">{isSignUp ? "Crear Cuenta" : "Iniciar Sesión"}</DialogTitle>
@@ -88,7 +88,7 @@ export default function LoginDialog() {
             {isSignUp ? "Regístrate para empezar." : "Ingresa tus credenciales o con redes sociales."}
           </DialogDescription>
         </DialogHeader>
-        
+
         <form className="space-y-4 py-4" onSubmit={handleSubmit}>
           {isSignUp && (
             <div className="space-y-2">
@@ -96,19 +96,19 @@ export default function LoginDialog() {
               <Input className="bg-white text-black rounded-full" id="nombre" placeholder="Juan Pérez" value={nombre} onChange={(e) => setNombre(e.target.value)} required />
             </div>
           )}
-          
+
           <div className="space-y-2">
             <Label htmlFor="email">Email</Label>
             <Input className="bg-white text-black rounded-full" id="email" type="email" placeholder="tu@email.com" value={email} onChange={(e) => setEmail(e.target.value)} required />
           </div>
-          
+
           <div className="space-y-2">
             <Label htmlFor="password">Contraseña</Label>
             <Input className="bg-white text-black rounded-full" id="password" type="password" placeholder="••••••••" value={password} onChange={(e) => setPassword(e.target.value)} required />
           </div>
 
           {error && <p className="text-sm text-red-300 font-bold">{error}</p>}
-          
+
           <Button type="submit" className="w-full bg-[#E91E63] rounded-full" disabled={loading}>
             {loading ? "Cargando..." : (isSignUp ? "Registrarme" : "Iniciar Sesión")}
           </Button>
@@ -117,10 +117,10 @@ export default function LoginDialog() {
 
           <div className="flex gap-4 justify-center items-center">
             <Button type="button" onClick={() => handleSocialLogin('google')} variant="outline" className="w-12 h-12 rounded-full p-0 bg-white border-none hover:bg-gray-700 flex items-center justify-center shadow-md">
-               <GoogleIcon />
+              <GoogleIcon />
             </Button>
             <Button type="button" onClick={() => handleSocialLogin('facebook')} variant="outline" className="w-12 h-12 rounded-full p-0 bg-[#1877F2] border-none text-white hover:bg-[#166fe5] flex items-center justify-center shadow-md">
-               <Facebook className="h-6 w-6" />
+              <Facebook className="h-6 w-6" />
             </Button>
           </div>
 
