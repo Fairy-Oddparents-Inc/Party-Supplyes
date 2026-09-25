@@ -25,7 +25,6 @@ const GoogleIcon = () => (
   </svg>
 );
 
-
 export default function LoginDialog() {
   const router = useRouter();
   const [email, setEmail] = useState("");
