@@ -24,7 +24,7 @@ const GoogleIcon = () => (
     <path fill="#1976D2" d="M43.611 20.083H42V20H24v8h11.303a12.04 12.04 0 0 1-4.087 5.571l.003-.002l6.19 5.238C36.971 39.205 44 34 44 24c0-1.332-.142-2.631-.389-3.917z" />
   </svg>
 );
-// Comment to check PR allowed
+
 export default function LoginDialog() {
   const router = useRouter();
   const [email, setEmail] = useState("");
