@@ -6,20 +6,21 @@ import { supabase } from '@/lib/supabase';
 import Navbar from '@/components/Navbar';
 
 export default function AuthGuard({ children }: { children: React.ReactNode }) {
+  // 1. TODOS LOS HOOKS VAN PRIMERO Y EN EL MISMO ORDEN SIEMPRE
   const router = useRouter();
   const pathname = usePathname();
   const [session, setSession] = useState<any>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // 1. Obtener sesión inicial
+    // Obtener sesión inicial
     supabase.auth.getSession().then(({ data: { session } }) => {
       setSession(session);
       handleNavigation(session);
       setLoading(false);
     });
 
-    // 2. Escuchar cambios de sesión en tiempo real
+    // Escuchar cambios de sesión
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, currentSession) => {
       setSession(currentSession);
       handleNavigation(currentSession);
@@ -30,16 +31,17 @@ export default function AuthGuard({ children }: { children: React.ReactNode }) {
   }, [pathname]);
 
   const handleNavigation = (currentSession: any) => {
-    // Si está logueado e intenta ir a la raíz o al login, lo mandamos al dashboard
+    if (pathname === '/reset-password') return;
+
     if (currentSession && (pathname === '/' || pathname === '/login')) {
       router.push('/dashboard');
     }
-    // Si NO está logueado e intenta ir a una ruta privada (ej: /dashboard)
     if (!currentSession && pathname.startsWith('/dashboard')) {
       router.push('/');
     }
   };
 
+  // 2. DESPUÉS DE DECLARAR TODOS LOS HOOKS, RECIÉN PUEDES HACER RETURNS CONDICIONALES
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-screen bg-slate-50">
@@ -48,17 +50,10 @@ export default function AuthGuard({ children }: { children: React.ReactNode }) {
     );
   }
 
-  // Evaluamos si es el Dashboard privado para no renderizar la Navbar pública de arriba
-  const isDashboard = pathname.startsWith('/dashboard');
-
   return (
     <>
-      {/* Solo muestra la Navbar pública si NO es el login y NO es el dashboard de usuario */}
-      {pathname !== '/login' && <Navbar />}
-      
-      <main>
-          {children}
-      </main>
+      {pathname !== '/login' && !pathname.startsWith('/dashboard') && <Navbar />}
+      <main>{children}</main>
     </>
   );
 }
