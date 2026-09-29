@@ -1,7 +1,7 @@
 "use client";
 
-import { useState } from "react";
-import { useRouter } from "next/navigation";
+import { useState, useEffect } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import { supabase } from "@/lib/supabase";
 import {
   Dialog,
@@ -27,6 +27,8 @@ const GoogleIcon = () => (
 
 export default function LoginDialog() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const [open, setOpen] = useState(false);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [nombre, setNombre] = useState("");
@@ -34,7 +36,24 @@ export default function LoginDialog() {
   const [successMsg, setSuccessMsg] = useState("");
   const [loading, setLoading] = useState(false);
   const [isSignUp, setIsSignUp] = useState(false);
-  const [isForgotPassword, setIsForgotPassword] = useState(false); // <--- Nuevo estado
+  const [isForgotPassword, setIsForgotPassword] = useState(false);
+
+  // Escucha el evento de recuperación de contraseña de Supabase o la query param
+  useEffect(() => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event) => {
+      if (event === "PASSWORD_RECOVERY") {
+        setIsForgotPassword(true);
+        setOpen(true);
+      }
+    });
+
+    if (searchParams.get("reset") === "true") {
+      setIsForgotPassword(true);
+      setOpen(true);
+    }
+
+    return () => subscription.unsubscribe();
+  }, [searchParams]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -43,7 +62,6 @@ export default function LoginDialog() {
     setSuccessMsg("");
 
     if (isForgotPassword) {
-      // Flujo de Olvidé mi contraseña
       const { error } = await supabase.auth.resetPasswordForEmail(email, {
         redirectTo: `${window.location.origin}/reset-password`,
       });
@@ -54,7 +72,6 @@ export default function LoginDialog() {
         setSuccessMsg("Te hemos enviado un enlace a tu correo para restablecer tu contraseña.");
       }
     } else if (isSignUp) {
-      // Flujo de Registro
       const { error } = await supabase.auth.signUp({
         email,
         password,
@@ -63,7 +80,6 @@ export default function LoginDialog() {
       if (error) setError(error.message);
       else alert("¡Registro exitoso! Revisa tu correo.");
     } else {
-      // Flujo de Inicio de Sesión
       const { error } = await supabase.auth.signInWithPassword({ email, password });
       if (error) setError(error.message);
       else {
@@ -83,8 +99,9 @@ export default function LoginDialog() {
     if (error) setError(error.message);
   };
 
-  const handleOpenChange = (open: boolean) => {
-    if (!open) {
+  const handleOpenChange = (isOpen: boolean) => {
+    setOpen(isOpen);
+    if (!isOpen) {
       setIsSignUp(false);
       setIsForgotPassword(false);
       setError("");
@@ -93,7 +110,7 @@ export default function LoginDialog() {
   };
 
   return (
-    <Dialog onOpenChange={handleOpenChange}>
+    <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogTrigger asChild>
         <Button
           variant="ghost"
@@ -243,6 +260,6 @@ export default function LoginDialog() {
           </button>
         </form>
       </DialogContent>
-    </Dialog >
+    </Dialog>
   );
 }

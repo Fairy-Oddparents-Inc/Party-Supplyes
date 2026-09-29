@@ -6,7 +6,6 @@ import { supabase } from '@/lib/supabase';
 import Navbar from '@/components/Navbar';
 
 export default function AuthGuard({ children }: { children: React.ReactNode }) {
-  // 1. TODOS LOS HOOKS VAN PRIMERO Y EN EL MISMO ORDEN SIEMPRE
   const router = useRouter();
   const pathname = usePathname();
   const [session, setSession] = useState<any>(null);
@@ -41,7 +40,6 @@ export default function AuthGuard({ children }: { children: React.ReactNode }) {
     }
   };
 
-  // 2. DESPUÉS DE DECLARAR TODOS LOS HOOKS, RECIÉN PUEDES HACER RETURNS CONDICIONALES
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-screen bg-slate-50">
