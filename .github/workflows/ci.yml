@@ -17,13 +17,17 @@ jobs:
         with:
           node-version: 20
           cache: 'npm'
+          cache-dependency-path: 'supparty/package-lock.json'
 
       - name: Instalar dependencias
         run: npm ci
+        working-directory: supparty
 
       - name: Ejecutar Linter
         run: npm run lint
+        working-directory: supparty
 
-      # Descomentar esta línea cuando tengamos pruebas configuradas en package.json
+      # Descomentar cuando configures pruebas
       # - name: Ejecutar Tests
       #   run: npm test
+      #   working-directory: supparty
