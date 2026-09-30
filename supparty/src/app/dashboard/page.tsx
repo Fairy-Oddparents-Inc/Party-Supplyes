@@ -49,7 +49,7 @@ export default function DashboardPage() {
         {/* CONTENIDO PRINCIPAL */}
         <main className="flex-1 p-8 space-y-6 overflow-y-auto">
 
-          {/* Cabecera de Perfil de Diego */}
+          {/* Cabecera de Perfil */}
           <section className="grid grid-cols-1 md:grid-cols-3 gap-6 items-center bg-white p-6 rounded-2xl shadow-sm border border-slate-100">
             <div className="flex items-center gap-4 md:col-span-2">
               <div className="w-20 h-20 rounded-full bg-slate-200 border-2 border-slate-300 relative">
@@ -134,7 +134,6 @@ export default function DashboardPage() {
   );
 }
 
-/* MINI COMPONENTES INTERNOS */
 function SidebarLink({ icon, label, active = false }: { icon: React.ReactNode, label: string, active?: boolean }) {
   return (
     <button className={`w-full flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm font-medium transition-colors ${active ? 'bg-[#EFE9F7] text-[#2D144B]' : 'text-slate-500 hover:bg-slate-50 hover:text-slate-800'}`}>

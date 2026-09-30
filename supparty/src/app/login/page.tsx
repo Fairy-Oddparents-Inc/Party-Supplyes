@@ -1,7 +1,7 @@
 "use client";
 
-import { useState } from "react";
-import { useRouter } from "next/navigation";
+import { useState, useEffect } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import { supabase } from "@/lib/supabase";
 import {
   Dialog,
@@ -28,21 +28,60 @@ const GoogleIcon = () => (
 //
 export default function LoginDialog() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const [open, setOpen] = useState(false);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [nombre, setNombre] = useState("");
   const [error, setError] = useState("");
+  const [successMsg, setSuccessMsg] = useState("");
   const [loading, setLoading] = useState(false);
   const [isSignUp, setIsSignUp] = useState(false);
+  const [isForgotPassword, setIsForgotPassword] = useState(false);
+
+  const shouldReset = searchParams.get("reset") === "true";
+
+  useEffect(() => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event) => {
+      if (event === "PASSWORD_RECOVERY") {
+        setIsForgotPassword(true);
+        setOpen(true);
+      }
+    });
+
+    return () => subscription.unsubscribe();
+  }, []);
+
+  useEffect(() => {
+    if (shouldReset) {
+      queueMicrotask(() => {
+        setIsForgotPassword(true);
+        setOpen(true);
+      });
+    }
+  }, [shouldReset]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
     setError("");
+    setSuccessMsg("");
 
-    if (isSignUp) {
+    if (isForgotPassword) {
+      const { error } = await supabase.auth.resetPasswordForEmail(email, {
+        redirectTo: `${window.location.origin}/reset-password`,
+      });
+
+      if (error) {
+        setError(error.message);
+      } else {
+        setSuccessMsg("Te hemos enviado un enlace a tu correo para restablecer tu contraseña.");
+      }
+    } else if (isSignUp) {
       const { error } = await supabase.auth.signUp({
-        email, password, options: { data: { full_name: nombre } }
+        email,
+        password,
+        options: { data: { full_name: nombre } }
       });
       if (error) setError(error.message);
       else alert("¡Registro exitoso! Revisa tu correo.");
@@ -66,12 +105,18 @@ export default function LoginDialog() {
     if (error) setError(error.message);
   };
 
-  const handleOpenChange = (open: boolean) => {
-    if (!open) { setIsSignUp(false); setError(""); }
+  const handleOpenChange = (isOpen: boolean) => {
+    setOpen(isOpen);
+    if (!isOpen) {
+      setIsSignUp(false);
+      setIsForgotPassword(false);
+      setError("");
+      setSuccessMsg("");
+    }
   };
 
   return (
-    <Dialog onOpenChange={handleOpenChange}>
+    <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogTrigger asChild>
         <Button
           variant="ghost"
@@ -84,49 +129,140 @@ export default function LoginDialog() {
 
       <DialogContent className="bg-[#4B1B7D] text-white sm:max-w-md rounded-2xl" onInteractOutside={(e) => e.preventDefault()}>
         <DialogHeader>
-          <DialogTitle className="text-center">{isSignUp ? "Crear Cuenta" : "Iniciar Sesión"}</DialogTitle>
+          <DialogTitle className="text-center">
+            {isForgotPassword
+              ? "Recuperar Contraseña"
+              : isSignUp
+                ? "Crear Cuenta"
+                : "Iniciar Sesión"}
+          </DialogTitle>
           <DialogDescription className="text-white/70 text-center">
-            {isSignUp ? "Regístrate para empezar." : "Ingresa tus credenciales o con redes sociales."}
+            {isForgotPassword
+              ? "Ingresa tu email para recibir un enlace de recuperación."
+              : isSignUp
+                ? "Regístrate para empezar."
+                : "Ingresa tus credenciales o con redes sociales."}
           </DialogDescription>
         </DialogHeader>
 
         <form className="space-y-4 py-4" onSubmit={handleSubmit}>
-          {isSignUp && (
+          {isSignUp && !isForgotPassword && (
             <div className="space-y-2">
-              <Label htmlFor="nombre">Nombre Completo</Label>
-              <Input className="bg-white text-black rounded-full" id="nombre" placeholder="Juan Pérez" value={nombre} onChange={(e) => setNombre(e.target.value)} required />
+              <Label htmlFor="nombre" className="mb-2">
+                Nombre Completo
+              </Label>
+              <Input
+                className="bg-white text-black rounded-full"
+                id="nombre"
+                placeholder="Juan Pérez"
+                value={nombre}
+                onChange={(e) => setNombre(e.target.value)}
+                required
+              />
             </div>
           )}
 
-          <div className="space-y-2">
-            <Label htmlFor="email">Email</Label>
-            <Input className="bg-white text-black rounded-full" id="email" type="email" placeholder="tu@email.com" value={email} onChange={(e) => setEmail(e.target.value)} required />
+          <div className="space-y-2 mb-2">
+            <Label htmlFor="email" className="mb-2">
+              Email
+            </Label>
+            <Input
+              className="bg-white text-black rounded-full mb-2"
+              id="email"
+              type="email"
+              placeholder="tu@email.com"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              required
+            />
           </div>
 
-          <div className="space-y-2">
-            <Label htmlFor="password">Contraseña</Label>
-            <Input className="bg-white text-black rounded-full" id="password" type="password" placeholder="••••••••" value={password} onChange={(e) => setPassword(e.target.value)} required />
-          </div>
+          {!isForgotPassword && (
+            <div className="space-y-2">
+              <Label htmlFor="password" className="mb-2">
+                Contraseña
+              </Label>
+              <Input
+                className="bg-white text-black rounded-full mb-2"
+                id="password"
+                type="password"
+                placeholder="••••••••"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                required
+              />
+              <div className="flex justify-end items-center mt-2">
+                {!isSignUp && (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setIsForgotPassword(true);
+                      setError("");
+                      setSuccessMsg("");
+                    }}
+                    className="text-xs text-white/80 hover:text-white hover:underline cursor-pointer"
+                  >
+                    ¿Olvidaste tu contraseña?
+                  </button>
+                )}
+              </div>
+            </div>
+          )}
 
           {error && <p className="text-sm text-red-300 font-bold">{error}</p>}
+          {successMsg && <p className="text-sm text-green-300 font-bold">{successMsg}</p>}
 
-          <Button type="submit" className="w-full bg-[#E91E63] rounded-full" disabled={loading}>
-            {loading ? "Cargando..." : (isSignUp ? "Registrarme" : "Iniciar Sesión")}
+          <Button type="submit" className="w-full bg-[#E91E63] rounded-full cursor-pointer" disabled={loading}>
+            {loading
+              ? "Cargando..."
+              : isForgotPassword
+                ? "Enviar Enlace"
+                : isSignUp
+                  ? "Registrarme"
+                  : "Iniciar Sesión"}
           </Button>
 
-          <div className="relative my-4"><div className="absolute inset-0 flex items-center"><div className="w-full border-t border-white/20"></div></div><div className="relative flex justify-center text-xs"><span className="bg-[#4B1B7D] px-2 text-white/60">O continúa con</span></div></div>
+          {!isForgotPassword && (
+            <>
+              <div className="relative my-4">
+                <div className="absolute inset-0 flex items-center">
+                  <div className="w-full border-t border-white/20"></div>
+                </div>
+                <div className="relative flex justify-center text-xs">
+                  <span className="bg-[#4B1B7D] px-2 text-white/60">O continúa con</span>
+                </div>
+              </div>
 
-          <div className="flex gap-4 justify-center items-center">
-            <Button type="button" onClick={() => handleSocialLogin('google')} variant="outline" className="w-12 h-12 rounded-full p-0 bg-white border-none hover:bg-gray-700 flex items-center justify-center shadow-md">
-              <GoogleIcon />
-            </Button>
-            <Button type="button" onClick={() => handleSocialLogin('facebook')} variant="outline" className="w-12 h-12 rounded-full p-0 bg-[#1877F2] border-none text-white hover:bg-[#166fe5] flex items-center justify-center shadow-md">
-              <Facebook className="h-6 w-6" />
-            </Button>
-          </div>
+              <div className="flex gap-4 justify-center items-center">
+                <Button type="button" onClick={() => handleSocialLogin('google')} variant="outline" className="w-12 h-12 rounded-full p-0 bg-white border-none hover:bg-gray-700 flex items-center justify-center shadow-md cursor-pointer">
+                  <GoogleIcon />
+                </Button>
+                <Button type="button" onClick={() => handleSocialLogin('facebook')} variant="outline" className="w-12 h-12 rounded-full p-0 bg-[#1877F2] border-none text-white hover:bg-[#166fe5] flex items-center justify-center shadow-md cursor-pointer">
+                  <Facebook className="h-6 w-6" />
+                </Button>
+              </div>
+            </>
+          )}
 
-          <button type="button" className="w-full text-sm underline text-center text-white/80 hover:text-white mt-4" onClick={(e) => { e.preventDefault(); setIsSignUp(!isSignUp); }}>
-            {isSignUp ? "¿Ya tienes cuenta? Inicia sesión" : "¿No tienes cuenta? Regístrate"}
+          <button
+            type="button"
+            className="w-full text-sm underline text-center text-white/80 hover:text-white mt-4 cursor-pointer"
+            onClick={(e) => {
+              e.preventDefault();
+              setError("");
+              setSuccessMsg("");
+              if (isForgotPassword) {
+                setIsForgotPassword(false);
+              } else {
+                setIsSignUp(!isSignUp);
+              }
+            }}
+          >
+            {isForgotPassword
+              ? "Volver a Iniciar Sesión"
+              : isSignUp
+                ? "¿Ya tienes cuenta? Inicia sesión"
+                : "¿No tienes cuenta? Regístrate"}
           </button>
         </form>
       </DialogContent>

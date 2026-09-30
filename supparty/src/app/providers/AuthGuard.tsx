@@ -11,7 +11,6 @@ export default function AuthGuard({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const [loading, setLoading] = useState(true);
 
-  // Declaramos handleNavigation con useCallback antes de usarlo en el useEffect
   const handleNavigation = useCallback(
     (currentSession: Session | null) => {
       if (pathname === '/reset-password') return;
@@ -27,11 +26,13 @@ export default function AuthGuard({ children }: { children: React.ReactNode }) {
   );
 
   useEffect(() => {
+    // Obtener sesión inicial
     supabase.auth.getSession().then(({ data: { session } }) => {
       handleNavigation(session);
       setLoading(false);
     });
 
+    // Escuchar cambios de sesión
     const {
       data: { subscription },
     } = supabase.auth.onAuthStateChange((_event, currentSession) => {
