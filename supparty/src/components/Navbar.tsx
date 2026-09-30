@@ -4,9 +4,9 @@
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
-import { 
-  Grid, HelpCircleIcon, Bell, Heart, ShoppingCart, 
-  User, Percent, Armchair, Gamepad2, Landmark, Sparkles, Search 
+import {
+  Grid, HelpCircleIcon, Bell, Heart, ShoppingCart,
+  User, Percent, Armchair, Gamepad2, Landmark, Sparkles, Search
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useRouter } from 'next/navigation';
@@ -14,9 +14,11 @@ import { supabase } from '@/lib/supabase';
 import { IconFileDollar } from '@tabler/icons-react';
 import LoginDialog from '../app/login/page';
 
+type UserType = Awaited<ReturnType<typeof supabase.auth.getUser>>['data']['user'];
+
 export default function Navbar() {
   const router = useRouter();
-  const [user, setUser] = useState<any>(null);
+  const [user, setUser] = useState<UserType>(null);
 
   useEffect(() => {
     const getInitialUser = async () => {
@@ -34,21 +36,21 @@ export default function Navbar() {
 
   const handleLogout = async () => {
     await supabase.auth.signOut();
-    router.refresh(); 
+    router.refresh();
   };
 
   return (
     <div className="relative w-full bg-[#4B1B7D] text-white px-8 py-3 z-50 select-none flex flex-col justify-between min-h-[110px]">
-      
+
       <div className="absolute left-8 top-1/2 -translate-y-1/2 z-10">
         <Link href="/" className="text-3xl font-black tracking-tight flex items-center gap-2">
-          <Image 
-            src="/assets/suppartyLogo.svg" 
-            alt="Supparty Logo" 
-            width={250} 
-            height={80} 
+          <Image
+            src="/assets/suppartyLogo.svg"
+            alt="Supparty Logo"
+            width={250}
+            height={80}
             className="object-contain"
-    />
+          />
         </Link>
       </div>
 
@@ -60,15 +62,15 @@ export default function Navbar() {
             Conviértete en Suppartner
           </Button>
         </div>
-        
+
         <div className="flex items-center gap-5 pr-2">
           {user ? (
             <button onClick={handleLogout} className="hover:text-pink-300 flex items-center gap-1.5 transition-colors">
-              <User size={15}/> Cerrar Sesión
+              <User size={15} /> Cerrar Sesión
             </button>
           ) : (
             <div className="flex items-center gap-1.5 hover:text-pink-300 transition-colors">
-              <User size={15}/>
+              <User size={15} />
               <LoginDialog />
             </div>
           )}
@@ -76,7 +78,7 @@ export default function Navbar() {
           <Button variant="ghost" size="sm" className="h-auto p-0 text-[13px] hover:bg-transparent text-white hover:text-pink-300 flex items-center gap-1.5 font-medium transition-colors">
             <IconFileDollar size={15} /> Facturación
           </Button>
-          
+
           <Button variant="ghost" size="sm" className="h-auto p-0 text-[13px] hover:bg-transparent text-white hover:text-pink-300 flex items-center gap-1.5 font-medium transition-colors">
             <HelpCircleIcon size={15} /> Ayuda
           </Button>
@@ -86,20 +88,20 @@ export default function Navbar() {
       {/* ================= SECCIÓN INFERIOR: MENÚS Y UTILIDADES ================= */}
       {/* 🛠️ Le ponemos 'pl-[200px]' para asegurar que los elementos jamás se encimen con el espacio del logo absoluto a la izquierda */}
       <div className="w-full flex items-center justify-between relative pl-[200px]">
-        
+
         {/* BLOQUE CENTRAL-DERECHO: CATEGORÍAS */}
         <div className="flex items-center gap-4 xl:gap-6 ml-auto mr-4">
-          <NavCircleItem icon={<Grid size={20}/>} label="Categorías" hasArrow />
-          <NavCircleItem icon={<Percent size={20}/>} label="Ofertas" />
-          <NavCircleItem icon={<Armchair size={20}/>} label="Mobiliario" />
-          <NavCircleItem icon={<Gamepad2 size={20}/>} label="Juegos" />
-          <NavCircleItem icon={<Landmark size={20}/>} label="Salones" />
-          <NavCircleItem icon={<Sparkles size={20}/>} label="Experiencias" />
+          <NavCircleItem icon={<Grid size={20} />} label="Categorías" hasArrow />
+          <NavCircleItem icon={<Percent size={20} />} label="Ofertas" />
+          <NavCircleItem icon={<Armchair size={20} />} label="Mobiliario" />
+          <NavCircleItem icon={<Gamepad2 size={20} />} label="Juegos" />
+          <NavCircleItem icon={<Landmark size={20} />} label="Salones" />
+          <NavCircleItem icon={<Sparkles size={20} />} label="Experiencias" />
         </div>
-          
+
         {/* BLOQUE EXTREMA DERECHA: BOTONES DE CONTROL */}
         <div className="flex items-center gap-4 border-l border-white/20 pl-6 shrink-0">
-          
+
           {/* Buscar */}
           <button className="flex flex-col items-center group">
             <div className="w-10 h-10 rounded-full bg-[#E91E63] group-hover:bg-[#D81B60] flex items-center justify-center text-white shadow-md transition-colors">

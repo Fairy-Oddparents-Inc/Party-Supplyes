@@ -10,10 +10,10 @@ import { Button } from "@/components/ui/button";
 import Navbar from '@/components/Navbar';
 
 export default function DashboardPage() {
-  const [user, setUser] = useState<any>(null);
-
+  type SessionType = Awaited<ReturnType<typeof supabase.auth.getSession>>['data']['session'];
+  const [session, setSession] = useState<SessionType>(null);
   useEffect(() => {
-    supabase.auth.getUser().then(({ data: { user } }) => setUser(user));
+    supabase.auth.getSession().then(({ data: { session } }) => setSession(session));
   }, []);
 
   return (
@@ -56,11 +56,11 @@ export default function DashboardPage() {
                 <div className="absolute bottom-0 right-0 bg-white p-1 rounded-full shadow text-[10px]">📷</div>
               </div>
               <div>
-                <h1 className="text-2xl font-bold text-slate-800">¡Hola, {user?.user_metadata?.full_name || 'Diego'}!</h1>
+                <h1 className="text-2xl font-bold text-slate-800">¡Hola, {session?.user?.user_metadata?.full_name || 'Diego'}!</h1>
                 <p className="text-sm text-slate-500">Gracias por confiar en Supparty</p>
                 <div className="text-xs text-slate-400 mt-1 flex flex-col gap-0.5">
                   <span>📍 Naucalpan, Edo. Mex.</span>
-                  <span>✉️ {user?.email || 'diego.ramirez@gmail.com'}</span>
+                  <span>✉️ {session?.user?.email || 'diego.ramirez@gmail.com'}</span>
                 </div>
                 <button className="text-xs text-pink-500 font-semibold mt-2 hover:underline">Editar perfil →</button>
               </div>
