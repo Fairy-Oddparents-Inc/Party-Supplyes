@@ -48,13 +48,18 @@ export default function LoginDialog() {
       }
     });
 
-    if (searchParams.get("reset") === "true") {
+    return () => subscription.unsubscribe();
+  }, []);
+
+  // 2. Sincronizar parámetros de URL de forma segura sin disparar re-renders en cascada
+  const shouldReset = searchParams.get("reset") === "true";
+
+  useEffect(() => {
+    if (shouldReset) {
       setIsForgotPassword(true);
       setOpen(true);
     }
-
-    return () => subscription.unsubscribe();
-  }, [searchParams]);
+  }, [shouldReset]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
