@@ -1,44 +1,46 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
+import { Session } from '@supabase/supabase-js';
 import { supabase } from '@/lib/supabase';
 import Navbar from '@/components/Navbar';
 
 export default function AuthGuard({ children }: { children: React.ReactNode }) {
   const router = useRouter();
   const pathname = usePathname();
-  const [session, setSession] = useState<any>(null);
   const [loading, setLoading] = useState(true);
 
+  // Declaramos handleNavigation con useCallback antes de usarlo en el useEffect
+  const handleNavigation = useCallback(
+    (currentSession: Session | null) => {
+      if (pathname === '/reset-password') return;
+
+      if (currentSession && (pathname === '/' || pathname === '/login')) {
+        router.push('/dashboard');
+      }
+      if (!currentSession && pathname.startsWith('/dashboard')) {
+        router.push('/');
+      }
+    },
+    [pathname, router]
+  );
+
   useEffect(() => {
-    // 1. Obtener sesión inicial
     supabase.auth.getSession().then(({ data: { session } }) => {
-      setSession(session);
       handleNavigation(session);
       setLoading(false);
     });
 
-    // 2. Escuchar cambios de sesión en tiempo real
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, currentSession) => {
-      setSession(currentSession);
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange((_event, currentSession) => {
       handleNavigation(currentSession);
       setLoading(false);
     });
 
     return () => subscription.unsubscribe();
-  }, [pathname]);
-
-  const handleNavigation = (currentSession: any) => {
-    // Si está logueado e intenta ir a la raíz o al login, lo mandamos al dashboard
-    if (currentSession && (pathname === '/' || pathname === '/login')) {
-      router.push('/dashboard');
-    }
-    // Si NO está logueado e intenta ir a una ruta privada (ej: /dashboard)
-    if (!currentSession && pathname.startsWith('/dashboard')) {
-      router.push('/');
-    }
-  };
+  }, [handleNavigation]);
 
   if (loading) {
     return (
@@ -48,17 +50,10 @@ export default function AuthGuard({ children }: { children: React.ReactNode }) {
     );
   }
 
-  // Evaluamos si es el Dashboard privado para no renderizar la Navbar pública de arriba
-  const isDashboard = pathname.startsWith('/dashboard');
-
   return (
     <>
-      {/* Solo muestra la Navbar pública si NO es el login y NO es el dashboard de usuario */}
-      {pathname !== '/login' && <Navbar />}
-      
-      <main>
-          {children}
-      </main>
+      {pathname !== '/login' && !pathname.startsWith('/dashboard') && <Navbar />}
+      <main>{children}</main>
     </>
   );
 }

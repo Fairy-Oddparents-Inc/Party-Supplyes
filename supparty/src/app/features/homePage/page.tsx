@@ -1,6 +1,5 @@
 'use client';
 
-import Navbar from '@/components/Navbar';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -9,12 +8,11 @@ import { Search, MapPin, Calendar, Bot } from "lucide-react";
 export default function LandingPage() {
   return (
     <main className="min-h-screen bg-gray-50">
-      
       <div className="pb-16">
-        
+
         <section className="bg-gradient-to-r from-cyan-400 to-blue-500 py-16 px-6 text-center">
           <h1 className="text-4xl md:text-5xl font-bold text-white mb-8">Verano Party</h1>
-          
+
           <div className="max-w-4xl mx-auto bg-white p-4 rounded-xl shadow-lg flex flex-col md:flex-row gap-2">
             <div className="flex-1 flex items-center px-2 border-b md:border-b-0 md:border-r">
               <Search className="text-gray-400 mr-2" />
@@ -77,12 +75,12 @@ export default function LandingPage() {
         </section>
 
         <footer className="bg-[#4B1B7D] text-white py-12">
-           <div className="max-w-6xl mx-auto px-6 grid grid-cols-2 md:grid-cols-4 gap-8 text-sm">
-             <FooterCol title="Servicio al cliente" links={["Ayuda", "Facturación", "Consultar reserva"]} />
-             <FooterCol title="Información útil" links={["Nuestra historia", "Sala de prensa", "Términos de uso"]} />
-             <FooterCol title="Supparters" links={["Registrarse", "Perfil Suppartner", "Contáctanos"]} />
-             <FooterCol title="Síguenos" links={["Copyright 2026", "Grupo Supparty"]} />
-           </div>
+          <div className="max-w-6xl mx-auto px-6 grid grid-cols-2 md:grid-cols-4 gap-8 text-sm">
+            <FooterCol title="Servicio al cliente" links={["Ayuda", "Facturación", "Consultar reserva"]} />
+            <FooterCol title="Información útil" links={["Nuestra historia", "Sala de prensa", "Términos de uso"]} />
+            <FooterCol title="Supparters" links={["Registrarse", "Perfil Suppartner", "Contáctanos"]} />
+            <FooterCol title="Síguenos" links={["Copyright 2026", "Grupo Supparty"]} />
+          </div>
         </footer>
       </div>
     </main>

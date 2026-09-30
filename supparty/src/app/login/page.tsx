@@ -25,6 +25,7 @@ const GoogleIcon = () => (
   </svg>
 );
 
+//
 export default function LoginDialog() {
   const router = useRouter();
   const [email, setEmail] = useState("");
@@ -53,7 +54,7 @@ export default function LoginDialog() {
       }
     }
     setLoading(false);
-  };
+  }; // Fin de handleSubmit
 
   const handleSocialLogin = async (provider: 'google' | 'facebook') => {
     const { error } = await supabase.auth.signInWithOAuth({
