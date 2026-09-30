@@ -4,10 +4,11 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Search, MapPin, Calendar, Bot } from "lucide-react";
+import Footer from "@/components/layout/Footer";
 
 export default function LandingPage() {
   return (
-    <main className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gray-50">
       <div className="pb-16">
 
         <section className="bg-gradient-to-r from-cyan-400 to-blue-500 py-16 px-6 text-center">
@@ -74,16 +75,9 @@ export default function LandingPage() {
           <FeatureCard title="Reserva rápida y segura" desc="Confirma tu servicio en pocos pasos con respaldo total." />
         </section>
 
-        <footer className="bg-[#4B1B7D] text-white py-12">
-          <div className="max-w-6xl mx-auto px-6 grid grid-cols-2 md:grid-cols-4 gap-8 text-sm">
-            <FooterCol title="Servicio al cliente" links={["Ayuda", "Facturación", "Consultar reserva"]} />
-            <FooterCol title="Información útil" links={["Nuestra historia", "Sala de prensa", "Términos de uso"]} />
-            <FooterCol title="Supparters" links={["Registrarse", "Perfil Suppartner", "Contáctanos"]} />
-            <FooterCol title="Síguenos" links={["Copyright 2026", "Grupo Supparty"]} />
-          </div>
-        </footer>
       </div>
-    </main>
+      <Footer />
+    </div>
   );
 }
 
@@ -93,17 +87,6 @@ function FeatureCard({ title, desc }: { title: string, desc: string }) {
       <div className="w-12 h-12 bg-gray-200 rounded-full mb-4" />
       <h4 className="font-bold text-gray-800">{title}</h4>
       <p className="text-sm text-gray-600">{desc}</p>
-    </div>
-  );
-}
-
-function FooterCol({ title, links }: { title: string, links: string[] }) {
-  return (
-    <div className="space-y-4">
-      <h5 className="font-bold uppercase tracking-wider">{title}</h5>
-      <ul className="space-y-2 opacity-80">
-        {links.map(link => <li key={link}>{link}</li>)}
-      </ul>
     </div>
   );
 }

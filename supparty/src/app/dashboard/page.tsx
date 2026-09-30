@@ -7,7 +7,7 @@ import {
   MessageSquare, Heart, Award, Settings, CheckCircle2, Star
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import Navbar from '@/components/Navbar';
+import Footer from '@/components/layout/Footer';
 
 export default function DashboardPage() {
   type SessionType = Awaited<ReturnType<typeof supabase.auth.getSession>>['data']['session'];
@@ -18,7 +18,6 @@ export default function DashboardPage() {
 
   return (
     <div className="min-h-screen bg-[#F4F3F8] flex flex-col">
-      <Navbar />
       <div className="flex flex-1">
 
         {/* SIDEBAR IZQUIERDO */}
@@ -130,6 +129,7 @@ export default function DashboardPage() {
 
         </main>
       </div>
+      <Footer />
     </div>
   );
 }
