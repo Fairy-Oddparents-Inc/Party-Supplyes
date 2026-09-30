@@ -54,7 +54,7 @@ export default function LoginDialog() {
       }
     }
     setLoading(false);
-  };
+  }; // Fin de handleSubmit
 
   const handleSocialLogin = async (provider: 'google' | 'facebook') => {
     const { error } = await supabase.auth.signInWithOAuth({
