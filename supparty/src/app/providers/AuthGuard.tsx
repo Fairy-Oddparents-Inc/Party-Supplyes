@@ -4,7 +4,6 @@ import { useEffect, useState, useCallback } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
 import { Session } from '@supabase/supabase-js';
 import { supabase } from '@/lib/supabase';
-import Navbar from '@/components/Navbar';
 
 export default function AuthGuard({ children }: { children: React.ReactNode }) {
   const router = useRouter();
@@ -15,7 +14,7 @@ export default function AuthGuard({ children }: { children: React.ReactNode }) {
     (currentSession: Session | null) => {
       if (pathname === '/reset-password') return;
 
-      if (currentSession && (pathname === '/' || pathname === '/login')) {
+      if (currentSession && (pathname === '/' || pathname === '/features/homePage' || pathname === '/login')) {
         router.push('/dashboard');
       }
       if (!currentSession && pathname.startsWith('/dashboard')) {
@@ -51,10 +50,6 @@ export default function AuthGuard({ children }: { children: React.ReactNode }) {
     );
   }
 
-  return (
-    <>
-      {pathname !== '/login' && !pathname.startsWith('/dashboard') && <Navbar />}
-      <main>{children}</main>
-    </>
-  );
+  // La navbar la pinta NavbarLayout (app/layout.tsx); aquí solo se protegen rutas
+  return <>{children}</>;
 }

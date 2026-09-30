@@ -1,0 +1,11 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "supparty-dev",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": ["--prefix", "supparty", "run", "dev"],
+      "port": 3001
+    }
+  ]
+}
