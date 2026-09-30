@@ -39,7 +39,8 @@ export default function LoginDialog() {
   const [isSignUp, setIsSignUp] = useState(false);
   const [isForgotPassword, setIsForgotPassword] = useState(false);
 
-  // Escucha el evento de recuperación de contraseña de Supabase o la query param
+  const shouldReset = searchParams.get("reset") === "true";
+
   useEffect(() => {
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event) => {
       if (event === "PASSWORD_RECOVERY") {
@@ -51,13 +52,12 @@ export default function LoginDialog() {
     return () => subscription.unsubscribe();
   }, []);
 
-  // 2. Sincronizar parámetros de URL de forma segura sin disparar re-renders en cascada
-  const shouldReset = searchParams.get("reset") === "true";
-
   useEffect(() => {
     if (shouldReset) {
-      setIsForgotPassword(true);
-      setOpen(true);
+      queueMicrotask(() => {
+        setIsForgotPassword(true);
+        setOpen(true);
+      });
     }
   }, [shouldReset]);
 
