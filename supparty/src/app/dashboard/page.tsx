@@ -2,14 +2,12 @@
 
 import { useEffect, useState } from 'react';
 import { supabase } from '@/lib/supabase';
-import { 
-  LayoutDashboard, Calendar, FileText, CreditCard, 
-  MessageSquare, Heart, Award, Settings, HelpCircle, CheckCircle2, Star 
+import {
+  LayoutDashboard, Calendar, CreditCard,
+  MessageSquare, Heart, Award, Settings, CheckCircle2, Star
 } from "lucide-react";
-import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-// 1. IMPORTA TU NAVBAR AQUÍ
-import Navbar from '@/components/Navbar'; 
+import Navbar from '@/components/Navbar';
 
 export default function DashboardPage() {
   const [user, setUser] = useState<any>(null);
@@ -19,24 +17,22 @@ export default function DashboardPage() {
   }, []);
 
   return (
-    // CAMBIAMOS A FLEX-COL PARA QUE EL NAVBAR QUEDE ARRIBA DEL TODO Y EL CONTENIDO ABAJO
     <div className="min-h-screen bg-[#F4F3F8] flex flex-col">
-      
-      {/* CONTENEDOR INFERIOR: Ocupará todo el espacio restante debajo del Navbar */}
+      <Navbar />
       <div className="flex flex-1">
-        
-        {/* SIDEBAR IZQUIERDO (Imagen 4) */}
+
+        {/* SIDEBAR IZQUIERDO */}
         <aside className="w-64 bg-white border-r border-slate-100 p-4 flex flex-col justify-between hidden lg:flex">
           <div className="space-y-6">
             <nav className="space-y-1">
-              <SidebarLink icon={<LayoutDashboard size={18}/>} label="Resumen" active />
-              <SidebarLink icon={<Calendar size={18}/>} label="Mis eventos" />
-              <SidebarLink icon={<CheckCircle2 size={18}/>} label="Reservaciones" />
-              <SidebarLink icon={<CreditCard size={18}/>} label="Pagos" />
-              <SidebarLink icon={<MessageSquare size={18}/>} label="Mensajes" />
-              <SidebarLink icon={<Heart size={18}/>} label="Favoritos" />
-              <SidebarLink icon={<Award size={18}/>} label="Recompensas" />
-              <SidebarLink icon={<Settings size={18}/>} label="Configuración" />
+              <SidebarLink icon={<LayoutDashboard size={18} />} label="Resumen" active />
+              <SidebarLink icon={<Calendar size={18} />} label="Mis eventos" />
+              <SidebarLink icon={<CheckCircle2 size={18} />} label="Reservaciones" />
+              <SidebarLink icon={<CreditCard size={18} />} label="Pagos" />
+              <SidebarLink icon={<MessageSquare size={18} />} label="Mensajes" />
+              <SidebarLink icon={<Heart size={18} />} label="Favoritos" />
+              <SidebarLink icon={<Award size={18} />} label="Recompensas" />
+              <SidebarLink icon={<Settings size={18} />} label="Configuración" />
             </nav>
           </div>
 
@@ -52,7 +48,7 @@ export default function DashboardPage() {
 
         {/* CONTENIDO PRINCIPAL */}
         <main className="flex-1 p-8 space-y-6 overflow-y-auto">
-          
+
           {/* Cabecera de Perfil de Diego */}
           <section className="grid grid-cols-1 md:grid-cols-3 gap-6 items-center bg-white p-6 rounded-2xl shadow-sm border border-slate-100">
             <div className="flex items-center gap-4 md:col-span-2">
@@ -69,7 +65,7 @@ export default function DashboardPage() {
                 <button className="text-xs text-pink-500 font-semibold mt-2 hover:underline">Editar perfil →</button>
               </div>
             </div>
-            
+
             {/* Score del Cliente */}
             <div className="bg-[#F8F9FA] border border-green-200 p-4 rounded-xl flex flex-col items-center justify-center text-center">
               <span className="text-xs text-green-700 font-bold bg-green-50 px-2 py-0.5 rounded-full flex items-center gap-1">
@@ -80,7 +76,7 @@ export default function DashboardPage() {
                 <span className="text-slate-400 text-sm"> /5</span>
               </div>
               <div className="flex gap-0.5 text-amber-400 my-1">
-                {[...Array(5)].map((_, i) => <Star key={i} size={14} fill="currentColor"/>)}
+                {[...Array(5)].map((_, i) => <Star key={i} size={14} fill="currentColor" />)}
               </div>
               <p className="text-[10px] text-slate-400">Basado en 52 proveedores</p>
             </div>
@@ -104,14 +100,14 @@ export default function DashboardPage() {
 
           {/* Grid de Eventos y Actividad */}
           <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
-            
+
             {/* Listado Próximos Eventos */}
             <div className="xl:col-span-2 bg-white p-6 rounded-2xl shadow-sm space-y-4">
               <div className="flex justify-between items-center border-b pb-3">
                 <h3 className="font-bold text-slate-800">Próximos eventos</h3>
                 <button className="text-xs text-[#2D144B] font-bold hover:underline">Ver todos →</button>
               </div>
-              
+
               <div className="space-y-3">
                 <EventRow title="Cumple Sofía" date="15 de agosto de 2026" status="Confirmado" color="bg-green-100 text-green-700" price="$12,500 MXN" />
                 <EventRow title="Graduación" date="15 de abril de 2026" status="Pendiente de pago" color="bg-amber-100 text-amber-700" price="$38,500 MXN" />
