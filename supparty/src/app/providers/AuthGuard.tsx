@@ -1,20 +1,34 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
+import { Session } from '@supabase/supabase-js';
 import { supabase } from '@/lib/supabase';
 import Navbar from '@/components/Navbar';
 
 export default function AuthGuard({ children }: { children: React.ReactNode }) {
   const router = useRouter();
   const pathname = usePathname();
-  const [session, setSession] = useState<any>(null);
   const [loading, setLoading] = useState(true);
+
+  // Declaramos handleNavigation con useCallback antes de usarlo en el useEffect
+  const handleNavigation = useCallback(
+    (currentSession: Session | null) => {
+      if (pathname === '/reset-password') return;
+
+      if (currentSession && (pathname === '/' || pathname === '/login')) {
+        router.push('/dashboard');
+      }
+      if (!currentSession && pathname.startsWith('/dashboard')) {
+        router.push('/');
+      }
+    },
+    [pathname, router]
+  );
 
   useEffect(() => {
     // Obtener sesión inicial
     supabase.auth.getSession().then(({ data: { session } }) => {
-      setSession(session);
       handleNavigation(session);
       setLoading(false);
     });
