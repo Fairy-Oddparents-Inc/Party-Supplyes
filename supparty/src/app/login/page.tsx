@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { supabase } from "@/lib/supabase";
 import {
@@ -25,8 +25,7 @@ const GoogleIcon = () => (
   </svg>
 );
 
-//
-export default function LoginDialog() {
+function LoginDialogContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const [open, setOpen] = useState(false);
@@ -93,7 +92,7 @@ export default function LoginDialog() {
       }
     }
     setLoading(false);
-  }; // Fin de handleSubmit
+  };
 
   const handleSocialLogin = async (provider: 'google' | 'facebook') => {
     const { error } = await supabase.auth.signInWithOAuth({
@@ -267,5 +266,13 @@ export default function LoginDialog() {
         </form>
       </DialogContent>
     </Dialog>
+  );
+}
+
+export default function LoginDialog() {
+  return (
+    <Suspense fallback={null}>
+      <LoginDialogContent />
+    </Suspense>
   );
 }
