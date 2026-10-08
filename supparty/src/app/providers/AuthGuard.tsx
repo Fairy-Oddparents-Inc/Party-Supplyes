@@ -14,7 +14,8 @@ export default function AuthGuard({ children }: { children: React.ReactNode }) {
     (currentSession: Session | null) => {
       if (pathname === '/reset-password') return;
 
-      if (currentSession && (pathname === '/' || pathname === '/features/homePage' || pathname === '/login')) {
+      // El home (/ y /features/homePage) es visible con sesión; solo /login redirige al dashboard
+      if (currentSession && pathname === '/login') {
         router.push('/dashboard');
       }
       if (!currentSession && pathname.startsWith('/dashboard')) {
