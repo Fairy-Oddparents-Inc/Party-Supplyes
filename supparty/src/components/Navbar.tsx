@@ -37,7 +37,15 @@ const topLinkClass = "hover:text-pink-300 flex items-center gap-1.5 transition-c
 export default function Navbar({ variant = 'public' }: { variant?: 'public' | 'dashboard' }) {
   const router = useRouter();
   const [user, setUser] = useState<UserType>(null);
-  const [showCategories, setShowCategories] = useState(false);
+  const isDashboard = variant === 'dashboard';
+  // El layout persiste entre rutas: al cambiar de variante se reinicia el estado
+  // (cerradas en el dashboard, abiertas en las vistas públicas).
+  const [showCategories, setShowCategories] = useState(!isDashboard);
+  const [prevVariant, setPrevVariant] = useState(variant);
+  if (prevVariant !== variant) {
+    setPrevVariant(variant);
+    setShowCategories(!isDashboard);
+  }
   const loginRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -65,7 +73,7 @@ export default function Navbar({ variant = 'public' }: { variant?: 'public' | 'd
     loginRef.current?.querySelector('button')?.click();
   };
 
-  const isDashboard = variant === 'dashboard';
+  const avatarUrl: string | undefined = user?.user_metadata?.avatar_url ?? user?.user_metadata?.picture;
 
   return (
     <header className="sticky top-0 w-full bg-[#4B1B7D] text-white px-8 py-3 z-50 select-none flex flex-col justify-between min-h-[110px]">
@@ -123,34 +131,40 @@ export default function Navbar({ variant = 'public' }: { variant?: 'public' | 'd
 
       {/* ================= SECCIÓN INFERIOR: MENÚS Y UTILIDADES ================= */}
       {/* 🛠️ Le ponemos 'pl-[200px]' para asegurar que los elementos jamás se encimen con el espacio del logo absoluto a la izquierda */}
-      <div className="w-full flex items-center justify-between relative pl-[200px]">
+      <div className="w-full flex items-center justify-between relative pl-[200px] min-h-[64px]">
 
-        {/* BLOQUE CENTRAL-DERECHO: CATEGORÍAS (en el dashboard se colapsan en un botón) */}
+        {/* BLOQUE CENTRAL-DERECHO: CATEGORÍAS (colapsables con un botón en todas las vistas) */}
         <div className="flex items-center gap-4 xl:gap-6 ml-auto mr-4">
-          {isDashboard && (
-            <button
-              onClick={() => setShowCategories(!showCategories)}
-              aria-label={showCategories ? 'Ocultar categorías' : 'Mostrar categorías'}
-              className="flex items-center gap-1 text-white/85 hover:text-white transition-colors"
-            >
-              {showCategories ? <ChevronRight size={18} /> : <ChevronLeft size={18} />}
-              {!showCategories && (
-                <span className="w-10 h-10 rounded-full bg-white/90 text-[#4B1B7D] flex items-center justify-center shadow-sm">
-                  <Grid size={20} />
-                </span>
-              )}
-            </button>
-          )}
+          <button
+            onClick={() => setShowCategories(!showCategories)}
+            aria-label={showCategories ? 'Ocultar categorías' : 'Mostrar categorías'}
+            className="flex items-center gap-1 text-white/85 hover:text-white transition-colors"
+          >
+            {showCategories ? <ChevronRight size={18} /> : <ChevronLeft size={18} />}
+            {!showCategories && (
+              <span className="w-10 h-10 rounded-full bg-white/90 text-[#4B1B7D] flex items-center justify-center shadow-sm">
+                <Grid size={20} />
+              </span>
+            )}
+          </button>
 
-          {(!isDashboard || showCategories) && siteConfig.categories.map((category) => (
-            <NavCircleItem
-              key={category.key}
-              href={category.href}
-              icon={CATEGORY_ICONS[category.key]}
-              label={category.label}
-              hasArrow={category.key === 'catalogo'}
-            />
-          ))}
+          {/* Siempre se renderizan: el despliegue anima ancho/opacidad sin alterar el alto del header */}
+          <div
+            aria-hidden={!showCategories}
+            className={`flex items-center gap-4 xl:gap-6 overflow-hidden transition-all duration-300 ease-in-out ${
+              showCategories ? 'max-w-[700px] opacity-100' : 'max-w-0 opacity-0 pointer-events-none'
+            }`}
+          >
+            {siteConfig.categories.map((category) => (
+              <NavCircleItem
+                key={category.key}
+                href={category.href}
+                icon={CATEGORY_ICONS[category.key]}
+                label={category.label}
+                hasArrow={category.key === 'catalogo'}
+              />
+            ))}
+          </div>
         </div>
 
         {/* BLOQUE EXTREMA DERECHA: BOTONES DE CONTROL */}
@@ -167,8 +181,19 @@ export default function Navbar({ variant = 'public' }: { variant?: 'public' | 'd
 
           {/* Mi Perfil */}
           <Link href="/dashboard" className="flex flex-col items-center group" aria-label="Mi perfil">
-            <div className={`w-10 h-10 rounded-full flex items-center justify-center shadow-md transition-colors ${isDashboard ? 'bg-[#1FB5C4] text-white group-hover:bg-[#19a0ad]' : 'bg-white text-slate-700 group-hover:bg-slate-100'}`}>
-              <User size={20} />
+            <div className={`w-10 h-10 rounded-full flex items-center justify-center shadow-md transition-colors overflow-hidden ${isDashboard ? 'bg-[#1FB5C4] text-white group-hover:bg-[#19a0ad]' : 'bg-white text-slate-700 group-hover:bg-slate-100'}`}>
+              {avatarUrl ? (
+                <Image
+                  src={avatarUrl}
+                  alt="Foto de perfil"
+                  width={40}
+                  height={40}
+                  referrerPolicy="no-referrer"
+                  className="w-full h-full object-cover"
+                />
+              ) : (
+                <User size={20} />
+              )}
             </div>
             {!isDashboard && (
               <span className="mt-1 text-[11px] font-medium text-white/90 group-hover:text-white transition-colors">Mi perfil</span>

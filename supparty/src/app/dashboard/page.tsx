@@ -7,6 +7,7 @@ import {
   MessageSquare, Heart, Award, Settings, CheckCircle2, Star
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import Image from 'next/image';
 import Footer from '@/components/layout/Footer';
 
 export default function DashboardPage() {
@@ -15,6 +16,7 @@ export default function DashboardPage() {
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => setSession(session));
   }, []);
+  const avatarUrl: string | undefined = session?.user?.user_metadata?.avatar_url ?? session?.user?.user_metadata?.picture;
 
   return (
     <div className="min-h-screen bg-[#F4F3F8] flex flex-col">
@@ -52,6 +54,16 @@ export default function DashboardPage() {
           <section className="grid grid-cols-1 md:grid-cols-3 gap-6 items-center bg-white p-6 rounded-2xl shadow-sm border border-slate-100">
             <div className="flex items-center gap-4 md:col-span-2">
               <div className="w-20 h-20 rounded-full bg-slate-200 border-2 border-slate-300 relative">
+                {avatarUrl && (
+                  <Image
+                    src={avatarUrl}
+                    alt="Foto de perfil"
+                    fill
+                    sizes="80px"
+                    referrerPolicy="no-referrer"
+                    className="rounded-full object-cover"
+                  />
+                )}
                 <div className="absolute bottom-0 right-0 bg-white p-1 rounded-full shadow text-[10px]">📷</div>
               </div>
               <div>
