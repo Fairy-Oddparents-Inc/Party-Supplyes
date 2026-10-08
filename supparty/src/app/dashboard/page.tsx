@@ -13,10 +13,20 @@ import Footer from '@/components/layout/Footer';
 export default function DashboardPage() {
   type SessionType = Awaited<ReturnType<typeof supabase.auth.getSession>>['data']['session'];
   const [session, setSession] = useState<SessionType>(null);
+  const [perfil, setPerfil] = useState<{ full_name: string | null; avatar_url: string | null } | null>(null);
   useEffect(() => {
-    supabase.auth.getSession().then(({ data: { session } }) => setSession(session));
+    supabase.auth.getSession().then(async ({ data: { session } }) => {
+      setSession(session);
+      if (!session) return;
+      const { data } = await supabase.from('profiles').select('full_name,avatar_url').eq('id', session.user.id).maybeSingle();
+      setPerfil(data);
+    });
   }, []);
-  const avatarUrl: string | undefined = session?.user?.user_metadata?.avatar_url ?? session?.user?.user_metadata?.picture;
+
+  // Prioridad: tabla profiles → metadata del proveedor (Google: full_name/name, avatar_url/picture) → email
+  const meta = session?.user?.user_metadata ?? {};
+  const nombre = perfil?.full_name || meta.full_name || meta.name || session?.user?.email?.split('@')[0] || '';
+  const avatarUrl: string | undefined = perfil?.avatar_url || meta.avatar_url || meta.picture || undefined;
 
   return (
     <div className="min-h-screen bg-[#F4F3F8] flex flex-col">
@@ -67,11 +77,11 @@ export default function DashboardPage() {
                 <div className="absolute bottom-0 right-0 bg-white p-1 rounded-full shadow text-[10px]">📷</div>
               </div>
               <div>
-                <h1 className="text-2xl font-bold text-slate-800">¡Hola, {session?.user?.user_metadata?.full_name || 'Diego'}!</h1>
+                <h1 className="text-2xl font-bold text-slate-800">¡Hola{nombre ? `, ${nombre}` : ''}!</h1>
                 <p className="text-sm text-slate-500">Gracias por confiar en Supparty</p>
                 <div className="text-xs text-slate-400 mt-1 flex flex-col gap-0.5">
                   <span>📍 Naucalpan, Edo. Mex.</span>
-                  <span>✉️ {session?.user?.email || 'diego.ramirez@gmail.com'}</span>
+                  <span>✉️ {session?.user?.email ?? ''}</span>
                 </div>
                 <button className="text-xs text-pink-500 font-semibold mt-2 hover:underline">Editar perfil →</button>
               </div>

@@ -3,12 +3,10 @@
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Search, Calendar, MapPin, Star, BadgeCheck } from "lucide-react";
-import Link from "next/link";
 import Image from "next/image";
 import { Suspense, useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Footer from "@/components/layout/Footer";
-import { supabase } from "@/lib/supabase";
 import { buscarItems, listarCategorias, type ItemOrden, type ItemResultado } from "@/lib/items";
 
 export default function LandingPage() {
@@ -87,7 +85,6 @@ function BuscadorYResultados() {
   const max = params.get('max') ?? '';
   const orden = (params.get('orden') as ItemOrden) || 'recientes';
 
-  const [nombre, setNombre] = useState<string | null>(null);
   const [categorias, setCategorias] = useState<string[]>([]);
   const claveBusqueda = JSON.stringify([q, cat, min, max, orden]);
   const [resultado, setResultado] = useState<{ clave: string; items: ItemResultado[]; error: string | null } | null>(null);
@@ -96,11 +93,6 @@ function BuscadorYResultados() {
   const error = resultado?.error ?? null;
 
   useEffect(() => {
-    supabase.auth.getUser().then(async ({ data: { user } }) => {
-      if (!user) return setNombre(null);
-      const { data } = await supabase.from('profiles').select('full_name').eq('id', user.id).maybeSingle();
-      setNombre(data?.full_name || user.user_metadata?.full_name || user.email || null);
-    });
     // Dev: dispara el diagnóstico de tablas; sus logs salen en la terminal de `next dev`
     if (process.env.NODE_ENV !== 'production') fetch('/api/debug/db').catch(() => {});
     listarCategorias().then(setCategorias).catch(() => {});
