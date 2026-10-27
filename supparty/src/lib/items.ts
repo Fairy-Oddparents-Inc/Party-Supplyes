@@ -18,6 +18,7 @@ export interface ItemResultado {
   price_per_day: number;
   stock: number | null;
   imagen: string | null;
+  totalImagenes: number;
   proveedor: string | null;
   proveedorVerificado: boolean;
   calificacion: number | null;
@@ -44,6 +45,29 @@ const SELECT =
 // Escapa caracteres que rompen el filtro .or() de PostgREST
 const limpiar = (t: string) => t.replace(/[,()%*\\]/g, ' ').trim();
 
+
+function mapear(r: FilaItem): ItemResultado {
+  const ratings = r.reviews ?? [];
+  const imgs = r.item_images ?? [];
+  const principal = imgs.find((i) => i.is_primary) ?? imgs[0];
+  return {
+    id: r.id,
+    title: r.title,
+    description: r.description,
+    category: r.category,
+    price_per_day: Number(r.price_per_day),
+    stock: r.stock,
+    imagen: principal?.image_url ?? null,
+    totalImagenes: imgs.length,
+    proveedor: r.providers?.business_name ?? null,
+    proveedorVerificado: !!r.providers?.is_verified,
+    calificacion: ratings.length
+      ? ratings.reduce((s, x) => s + x.rating, 0) / ratings.length
+      : null,
+    totalReviews: ratings.length,
+  };
+}
+
 export async function buscarItems(f: FiltrosItems): Promise<ItemResultado[]> {
   const dev = process.env.NODE_ENV !== 'production';
   if (dev) console.log('[items] 1/3 buscando con filtros', f);
@@ -69,26 +93,7 @@ export async function buscarItems(f: FiltrosItems): Promise<ItemResultado[]> {
   if (dev) console.log(`[items] 2/3 filas recibidas: ${data?.length ?? 0}`, data);
   console.log('[buscarItems 3/3] filas crudas:', data);
 
-  const items = (data ?? []).map((r): ItemResultado => {
-    const ratings = r.reviews ?? [];
-    const imgs = r.item_images ?? [];
-    const principal = imgs.find((i) => i.is_primary) ?? imgs[0];
-    return {
-      id: r.id,
-      title: r.title,
-      description: r.description,
-      category: r.category,
-      price_per_day: Number(r.price_per_day),
-      stock: r.stock,
-      imagen: principal?.image_url ?? null,
-      proveedor: r.providers?.business_name ?? null,
-      proveedorVerificado: !!r.providers?.is_verified,
-      calificacion: ratings.length
-        ? ratings.reduce((s, x) => s + x.rating, 0) / ratings.length
-        : null,
-      totalReviews: ratings.length,
-    };
-  });
+  const items = (data ?? []).map(mapear);
 
   if (dev) console.log('[items] 3/3 resultados mapeados', items);
 
@@ -102,4 +107,57 @@ export async function listarCategorias(): Promise<string[]> {
   const { data } = await supabase.from('items').select('category');
   const set = new Set((data ?? []).map((r) => r.category).filter(Boolean) as string[]);
   return [...set].sort();
+}
+
+// ───────── Catálogo: filtros laterales + paginación ─────────
+
+export interface FiltrosCatalogo extends FiltrosItems {
+  /** Términos de tipo de mobiliario (ej. "mesa", "silla"): coinciden con categoría o título */
+  tipos?: string[];
+  pagina?: number;
+  porPagina?: number;
+}
+
+export interface PaginaCatalogo {
+  items: ItemResultado[];
+  total: number;
+}
+
+export async function buscarCatalogo(f: FiltrosCatalogo): Promise<PaginaCatalogo> {
+  const dev = process.env.NODE_ENV !== 'production';
+  const porPagina = f.porPagina ?? 9;
+  const pagina = Math.max(1, f.pagina ?? 1);
+  const porCalificacion = f.orden === 'calificacion';
+  if (dev) console.log('[catalogo] 1/3 filtros', f);
+
+  let query = supabase.from('items').select(SELECT, { count: 'exact' });
+
+  const q = f.q ? limpiar(f.q) : '';
+  if (q) query = query.or(`title.ilike.%${q}%,description.ilike.%${q}%`);
+  const tipos = (f.tipos ?? []).map(limpiar).filter(Boolean);
+  if (tipos.length) {
+    query = query.or(tipos.flatMap((t) => [`category.ilike.%${t}%`, `title.ilike.%${t}%`]).join(','));
+  }
+  if (f.categoria) query = query.eq('category', f.categoria);
+  if (f.min !== undefined) query = query.gte('price_per_day', f.min);
+  if (f.max !== undefined) query = query.lte('price_per_day', f.max);
+
+  if (f.orden === 'precio_asc') query = query.order('price_per_day', { ascending: true });
+  else if (f.orden === 'precio_desc') query = query.order('price_per_day', { ascending: false });
+  else query = query.order('created_at', { ascending: false });
+
+  // La calificación se promedia en el cliente, así que ese orden no se puede paginar en el servidor
+  query = porCalificacion ? query.limit(200) : query.range((pagina - 1) * porPagina, pagina * porPagina - 1);
+
+  const { data, error, count, status } = await query.returns<FilaItem[]>();
+  if (dev) console.log(`[catalogo] 2/3 HTTP ${status}, filas=${data?.length ?? 0}, total=${count}`, error ?? '');
+  if (error) throw new Error(error.message);
+
+  let items = (data ?? []).map(mapear);
+  if (porCalificacion) {
+    items.sort((a, b) => (b.calificacion ?? -1) - (a.calificacion ?? -1));
+    items = items.slice((pagina - 1) * porPagina, pagina * porPagina);
+  }
+  if (dev) console.log('[catalogo] 3/3 resultados', items);
+  return { items, total: count ?? items.length };
 }

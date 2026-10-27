@@ -158,7 +158,7 @@ export default function Navbar({ variant = 'public' }: { variant?: 'public' | 'd
             {siteConfig.categories.map((category) => (
               <NavCircleItem
                 key={category.key}
-                href={category.href}
+                href={category.key === 'catalogo' && user ? '/catalogo' : category.href}
                 icon={CATEGORY_ICONS[category.key]}
                 label={category.label}
                 hasArrow={category.key === 'catalogo'}
