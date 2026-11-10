@@ -14,7 +14,23 @@ pnpm dev
 bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open [http://localhost:3001](http://localhost:3001) with your browser to see the result.
+
+## Google Maps para reservaciones
+
+La sección de ubicación de `/resumen-reservacion` permite buscar direcciones en México con Google Places y mostrar el mapa integrado. Para activar esas funciones:
+
+1. Crea una clave de API en Google Cloud, configura la facturación y habilita **Maps JavaScript API** y **Places API (New)** para las sugerencias de direcciones. El mapa incrustado usa directamente la dirección escrita y no necesita **Maps Embed API**.
+2. Restringe la clave por sitios web (HTTP referrers) y limita su uso a esas APIs.
+3. Agrega la clave al archivo `.env.local` en la raíz del proyecto:
+
+   ```env
+   NEXT_PUBLIC_GOOGLE_MAPS_API_KEY=tu_clave_de_google_maps
+   ```
+
+4. Reinicia el servidor de desarrollo con `npm run dev`.
+
+La clave `NEXT_PUBLIC_` se envía al navegador; no uses una clave privada de servidor. Sin la clave, se puede escribir la dirección manualmente y el mapa seguirá mostrando esa dirección, pero no estarán disponibles las sugerencias de Places.
 
 You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
 
