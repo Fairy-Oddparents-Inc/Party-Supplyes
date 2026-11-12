@@ -6,7 +6,6 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import { ChevronRight } from 'lucide-react';
 import Footer from '@/components/layout/Footer';
 import FiltrosCatalogo, { type ValoresFiltros } from '@/components/catalogo/FiltrosCatalogo';
-import BuscadorProductos from '@/components/buscador/BuscadorProductos';
 import CatalogoCard from '@/components/catalogo/CatalogoCard';
 import { PRECIO_MAX, POR_PAGINA, TIPOS_MOBILIARIO } from '@/config/catalogo';
 import { buscarCatalogo, type ItemOrden, type PaginaCatalogo } from '@/lib/items';
@@ -81,8 +80,6 @@ function Catalogo() {
       : 'Catálogo';
 
   return (
-    <>
-    <BuscadorProductos valorInicial={q} onBuscar={(valor) => actualizar({ q: valor, p: '' })} />
     <div className="mx-auto max-w-7xl px-6 pb-16 pt-6">
       <nav aria-label="Migas de pan" className="flex items-center gap-1 text-xs text-gray-500">
         <Link href="/" className="hover:text-[#E91E63]">Inicio</Link>
@@ -157,6 +154,5 @@ function Catalogo() {
         </section>
       </div>
     </div>
-    </>
   );
 }
