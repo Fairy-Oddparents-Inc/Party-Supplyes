@@ -1,3 +1,4 @@
+import Link from 'next/link';
 import { ArrowRight, BadgeCheck, Heart, Images, Star, Store } from 'lucide-react';
 import type { ItemResultado } from '@/lib/items';
 
@@ -50,13 +51,12 @@ export default function CatalogoCard({ item }: { item: ItemResultado }) {
           </p>
         </div>
 
-        {/* Pendiente: página de detalle */}
-        <button
-          type="button"
+        <Link
+          href={`/catalogo/${item.id}`}
           className="flex h-10 items-center justify-center gap-2 rounded-lg bg-[#E91E63] text-sm font-semibold text-white hover:bg-[#D81B60] transition-colors"
         >
           Ver detalles <ArrowRight size={16} />
-        </button>
+        </Link>
       </div>
     </article>
   );
