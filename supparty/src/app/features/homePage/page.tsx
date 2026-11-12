@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Search, Calendar, MapPin, Star, BadgeCheck } from "lucide-react";
 import Image from "next/image";
+import Link from "next/link";
 import { Suspense, useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Footer from "@/components/layout/Footer";
@@ -218,7 +219,11 @@ function BuscadorYResultados() {
 
 function ItemCard({ item }: { item: ItemResultado }) {
   return (
-    <div className="bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-xl transition-shadow">
+    <Link
+      href={`/catalogo/${item.id}`}
+      aria-label={`Ver detalle de ${item.title}`}
+      className="block bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-xl transition-shadow focus-visible:ring-2 focus-visible:ring-[#E91E63]"
+    >
       {item.imagen ? (
         // eslint-disable-next-line @next/next/no-img-element
         <img src={item.imagen} alt={item.title} className="h-48 w-full object-cover" />
@@ -243,6 +248,6 @@ function ItemCard({ item }: { item: ItemResultado }) {
           </p>
         )}
       </div>
-    </div>
+    </Link>
   );
 }
